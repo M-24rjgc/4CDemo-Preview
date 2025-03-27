@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史数据 - 中长跑指导系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .chart-container {
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        .filter-card {
+            margin-bottom: 20px;
+        }
+        .date-filter {
+            max-width: 300px;
+        }
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">跑步姿态分析系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">实时仪表盘</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/history">历史数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis">深度分析</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>历史跑步数据</h1>
+            </div>
+            <div class="col-md-4 text-end">
+                <button id="exportBtn" class="btn btn-outline-primary">导出数据</button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <h5 class="card-title">筛选条件</h5>
+                        <div class="row align-items-end">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label for="dateRange" class="form-label">日期范围</label>
+                                <input type="text" id="dateRange" class="form-control date-filter">
+                            </div>
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label for="dataType" class="form-label">数据类型</label>
+                                <select id="dataType" class="form-select">
+                                    <option value="all">全部</option>
+                                    <option value="posture">姿态评分</option>
+                                    <option value="cadence">步频</option>
+                                    <option value="impact">冲击力</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="filterBtn" class="btn btn-primary w-100">应用筛选</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">训练总次数</h5>
+                        <p class="display-4 mb-0" id="totalSessions">12</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">累计时长</h5>
+                        <p class="display-4 mb-0" id="totalDuration">18h</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">平均姿态评分</h5>
+                        <p class="display-4 mb-0" id="avgScore">83</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">平均步频</h5>
+                        <p class="display-4 mb-0" id="avgCadence">178</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">姿态评分趋势</h5>
+                        <div id="scoreChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">步频变化</h5>
+                        <div id="cadenceChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">步态相位分布</h5>
+                        <div id="phaseDistChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">历史训练记录</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>时长</th>
+                                        <th>步数</th>
+                                        <th>平均步频</th>
+                                        <th>姿态评分</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTable">
+                                    <tr>
+                                        <td>2024-02-25</td>
+                                        <td>45分钟</td>
+                                        <td>8,254</td>
+                                        <td>183</td>
+                                        <td>87</td>
+                                        <td><button class="btn btn-sm btn-outline-primary">查看详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-02-23</td>
+                                        <td>30分钟</td>
+                                        <td>5,473</td>
+                                        <td>182</td>
+                                        <td>85</td>
+                                        <td><button class="btn btn-sm btn-outline-primary">查看详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-02-20</td>
+                                        <td>60分钟</td>
+                                        <td>10,872</td>
+                                        <td>181</td>
+                                        <td>89</td>
+                                        <td><button class="btn btn-sm btn-outline-primary">查看详情</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 中长跑实时指导系统 | 基于多模态传感与边缘AI</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度分析 - 中长跑指导系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .chart-container {
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        .comparison-container {
+            height: 300px;
+        }
+        .select-session-card {
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .progress {
+            height: 8px;
+        }
+        .recommendation-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .recommendation-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">跑步姿态分析系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">实时仪表盘</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">历史数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/analysis">深度分析</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>跑步数据深度分析</h1>
+            </div>
+            <div class="col-md-4 text-end">
+                <button id="exportReportBtn" class="btn btn-outline-primary">导出PDF报告</button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card select-session-card">
+                    <div class="card-body">
+                        <h5 class="card-title">选择分析数据</h5>
+                        <div class="row align-items-end">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label for="sessionSelect" class="form-label">训练日期</label>
+                                <select id="sessionSelect" class="form-select">
+                                    <option value="latest">最近一次 (2024-02-25)</option>
+                                    <option value="20240223">2024-02-23</option>
+                                    <option value="20240220">2024-02-20</option>
+                                    <option value="20240218">2024-02-18</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label for="comparisonSelect" class="form-label">对比数据</label>
+                                <select id="comparisonSelect" class="form-select">
+                                    <option value="none">不对比</option>
+                                    <option value="previous">上一次训练</option>
+                                    <option value="best">个人最佳</option>
+                                    <option value="average">个人平均</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="analyzeBtn" class="btn btn-primary w-100">分析数据</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">姿态评分详情</h5>
+                        <div id="radarChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">步态周期分析</h5>
+                        <div id="gaitCycleChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">步频分析</h5>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <h2 class="mb-0" id="cadenceValue">178</h2>
+                            <span class="badge bg-success">良好</span>
+                        </div>
+                        <small class="text-muted">步/分钟</small>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>当前值</span>
+                                <span>理想范围: 170-185</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p>您的步频处于良好范围，有助于保持高效跑步姿态和减少膝关节压力。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">垂直振幅</h5>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <h2 class="mb-0" id="oscillationValue">9.2</h2>
+                            <span class="badge bg-warning">中等</span>
+                        </div>
+                        <small class="text-muted">厘米</small>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>当前值</span>
+                                <span>理想范围: 6-8 厘米</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p>您的垂直振幅略高，可能消耗额外能量。尝试降低重心，减小上下起伏。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">着地冲击力</h5>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <h2 class="mb-0" id="impactValue">2.8</h2>
+                            <span class="badge bg-success">良好</span>
+                        </div>
+                        <small class="text-muted">g</small>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>当前值</span>
+                                <span>理想范围: 2.0-3.0 g</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p>您的着地冲击力适中，表明具有良好的缓冲技术，有助于减少受伤风险。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">足部着地模式分析</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="footStrikeChart" class="chart-container"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="pressureHeatmap" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">对比分析</h5>
+                        <p class="text-muted">选择"对比数据"以查看与之前训练的对比</p>
+                        <div id="comparisonChart" class="comparison-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">改进建议</h5>
+                        <div class="recommendation-list">
+                            <div class="recommendation-item">
+                                <strong>保持良好的步频</strong>
+                                <p>您的步频处于良好范围。在感到疲劳时，尝试专注于保持相同的步频而非速度。</p>
+                            </div>
+                            <div class="recommendation-item">
+                                <strong>减小垂直振幅</strong>
+                                <p>垂直振幅略高，尝试将注意力放在向前推进而非上下起伏，保持身体重心略前倾。</p>
+                            </div>
+                            <div class="recommendation-item">
+                                <strong>优化足部着地</strong>
+                                <p>您的前掌着地比例较高，这有助于减少冲击，但可能增加小腿负担。可以尝试中掌着地以平衡效率和保护。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 中长跑实时指导系统 | 基于多模态传感与边缘AI</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+</body>
+</html>

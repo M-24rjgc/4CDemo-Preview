@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中长跑实时指导系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">跑步姿态分析系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">实时仪表盘</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">历史数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis">深度分析</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>基于边缘AI的中长跑实时指导系统</h1>
+                    <p class="lead">利用多模态传感器和边缘计算，提供实时的跑步姿态分析和改进建议</p>
+                    <div class="mt-4">
+                        <a href="/dashboard" class="btn btn-primary btn-lg me-3">开始分析</a>
+                        <a href="#features" class="btn btn-outline-primary btn-lg">了解更多</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/running-illustration.svg') }}" alt="跑步示意图" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">系统特点</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">实时数据分析</h5>
+                            <p class="card-text">200Hz高采样率传感器数据采集，边缘端实时处理，无需云端支持</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">深度学习模型</h5>
+                            <p class="card-text">CNN-BiLSTM混合模型，基于大量运动数据训练，精准识别步态特征</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">多维度评估</h5>
+                            <p class="card-text">结合IMU和足压数据，全方位评估跑步姿态，预防运动损伤</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">快速上手</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <ol class="mb-0">
+                                <li class="mb-3">连接硬件设备（通过USB或蓝牙）</li>
+                                <li class="mb-3">前往<a href="/dashboard">实时仪表盘</a>页面</li>
+                                <li class="mb-3">点击"开始采集"按钮启动数据采集</li>
+                                <li class="mb-3">开始跑步，系统会实时分析您的跑步姿态</li>
+                                <li>根据系统建议调整姿态，提高跑步效率</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 中长跑实时指导系统 | 基于多模态传感与边缘AI</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

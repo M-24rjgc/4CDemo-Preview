@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect x="0" y="0" width="800" height="600" fill="#f9f9f9"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="40" font-family="Arial" font-size="24" text-anchor="middle" fill="#333">基于边缘AI的中长跑实时指导系统架构</text>
+  
+  <!-- 数据采集层 -->
+  <rect x="100" y="100" width="600" height="80" rx="10" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <text x="400" y="145" font-family="Arial" font-size="18" text-anchor="middle" fill="#333">数据采集层</text>
+  
+  <rect x="130" y="160" width="160" height="40" rx="5" fill="#ffffff" stroke="#1890ff" stroke-width="1"/>
+  <text x="210" y="185" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">IMU传感器</text>
+  
+  <rect x="510" y="160" width="160" height="40" rx="5" fill="#ffffff" stroke="#1890ff" stroke-width="1"/>
+  <text x="590" y="185" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">足压传感器</text>
+  
+  <!-- 信号处理层 -->
+  <rect x="100" y="220" width="600" height="100" rx="10" fill="#e6fffb" stroke="#13c2c2" stroke-width="2"/>
+  <text x="400" y="250" font-family="Arial" font-size="18" text-anchor="middle" fill="#333">信号处理层</text>
+  
+  <rect x="130" y="270" width="160" height="40" rx="5" fill="#ffffff" stroke="#13c2c2" stroke-width="1"/>
+  <text x="210" y="295" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">数字滤波</text>
+  
+  <rect x="320" y="270" width="160" height="40" rx="5" fill="#ffffff" stroke="#13c2c2" stroke-width="1"/>
+  <text x="400" y="295" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">特征提取</text>
+  
+  <rect x="510" y="270" width="160" height="40" rx="5" fill="#ffffff" stroke="#13c2c2" stroke-width="1"/>
+  <text x="590" y="295" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">数据缓冲</text>
+  
+  <!-- 推理层 -->
+  <rect x="100" y="340" width="600" height="100" rx="10" fill="#fff2e8" stroke="#fa8c16" stroke-width="2"/>
+  <text x="400" y="370" font-family="Arial" font-size="18" text-anchor="middle" fill="#333">边缘AI推理层</text>
+  
+  <rect x="170" y="390" width="200" height="40" rx="5" fill="#ffffff" stroke="#fa8c16" stroke-width="1"/>
+  <text x="270" y="415" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">TensorFlow Lite模型</text>
+  
+  <rect x="430" y="390" width="200" height="40" rx="5" fill="#ffffff" stroke="#fa8c16" stroke-width="1"/>
+  <text x="530" y="415" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">步态分析算法</text>
+  
+  <!-- 应用层 -->
+  <rect x="100" y="460" width="600" height="100" rx="10" fill="#f9f0ff" stroke="#722ed1" stroke-width="2"/>
+  <text x="400" y="490" font-family="Arial" font-size="18" text-anchor="middle" fill="#333">应用层</text>
+  
+  <rect x="130" y="510" width="160" height="40" rx="5" fill="#ffffff" stroke="#722ed1" stroke-width="1"/>
+  <text x="210" y="535" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">实时仪表盘</text>
+  
+  <rect x="320" y="510" width="160" height="40" rx="5" fill="#ffffff" stroke="#722ed1" stroke-width="1"/>
+  <text x="400" y="535" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">历史数据分析</text>
+  
+  <rect x="510" y="510" width="160" height="40" rx="5" fill="#ffffff" stroke="#722ed1" stroke-width="1"/>
+  <text x="590" y="535" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">姿态改进建议</text>
+  
+  <!-- 连接线 -->
+  <!-- 数据采集层 → 信号处理层 -->
+  <line x1="210" y1="200" x2="210" y2="220" stroke="#1890ff" stroke-width="2"/>
+  <line x1="590" y1="200" x2="590" y2="220" stroke="#1890ff" stroke-width="2"/>
+  
+  <!-- 信号处理层 → 推理层 -->
+  <line x1="400" y1="320" x2="400" y2="340" stroke="#13c2c2" stroke-width="2"/>
+  
+  <!-- 推理层 → 应用层 -->
+  <line x1="400" y1="440" x2="400" y2="460" stroke="#fa8c16" stroke-width="2"/>
+  
+  <!-- 数据流箭头 -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+        markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <path d="M 700 145 Q 730 200 700 250" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="740" y="200" font-family="Arial" font-size="12" fill="#333">数据流</text>
+  
+  <path d="M 700 370 Q 730 415 700 490" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="740" y="430" font-family="Arial" font-size="12" fill="#333">结果</text>
+
+  <!-- 说明文本 -->
+  <text x="400" y="580" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">边缘计算架构 · 实时分析 · 低延迟响应 · 无需云端依赖</text>
+</svg>

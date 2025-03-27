@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时仪表盘 - 中长跑指导系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .data-card {
+            transition: all 0.3s ease;
+        }
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .score-gauge {
+            position: relative;
+            height: 200px;
+        }
+        .gait-phase {
+            font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        .gait-phase.stance {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .gait-phase.swing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .recommendation-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">跑步姿态分析系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">实时仪表盘</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">历史数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis">深度分析</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1>实时跑步数据分析</h1>
+            </div>
+            <div class="col-md-6 text-end">
+                <button id="startBtn" class="btn btn-success me-2">开始采集</button>
+                <button id="stopBtn" class="btn btn-danger me-2" disabled>停止采集</button>
+                <button id="exportBtn" class="btn btn-outline-primary">导出数据</button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card data-card">
+                    <div class="card-body">
+                        <h5 class="card-title">姿态评分</h5>
+                        <div id="scoreGauge" class="score-gauge"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card data-card">
+                    <div class="card-body">
+                        <h5 class="card-title">步态相位</h5>
+                        <p class="text-center mt-4">
+                            <span id="gaitPhase" class="gait-phase stance">支撑相</span>
+                        </p>
+                        <div id="phasePieChart" style="height: 120px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card data-card">
+                    <div class="card-body">
+                        <h5 class="card-title">当前状态</h5>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>步频：</span>
+                                <span id="cadence">180 步/分钟</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>垂直振幅：</span>
+                                <span id="oscillation">9.2 厘米</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>着地冲击：</span>
+                                <span id="impact">2.8 g</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>前后足比例：</span>
+                                <span id="footRatio">1.2:1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">加速度数据</h5>
+                        <div id="accChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">角速度数据</h5>
+                        <div id="gyroChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">足压分布</h5>
+                        <div id="pressureChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">姿态建议</h5>
+                        <div id="recommendationsContainer">
+                            <div class="recommendation-item">
+                                等待数据采集...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">连接状态</h5>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-success me-2">IMU</span>
+                                <span class="badge bg-success me-2">足压传感器</span>
+                                <span class="badge bg-success me-2">数据处理器</span>
+                                <span class="badge bg-success">AI引擎</span>
+                            </div>
+                            <div>
+                                <span>刷新率: <span id="refreshRate">10 Hz</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 中长跑实时指导系统 | 基于多模态传感与边缘AI</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
