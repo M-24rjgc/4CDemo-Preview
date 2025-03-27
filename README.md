@@ -258,7 +258,7 @@ python -m web_ui.app
 
 ## 联系方式
 
-如有问题或建议，请联系：example@example.com
+如有问题或建议，请联系：m_2024@henu.edu.cn
 
 ---
 最后更新：2025-03-27
